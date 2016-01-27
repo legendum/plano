@@ -1,2 +1,2 @@
 # plano
-An HTTP REST server for LevelDB
+A simple single-process REST server for LevelDB
