@@ -94,19 +94,27 @@ describe('Plano server', function(){
 
     it('should get all data in a database', function(done){
       function getAll(params, next){
-        var url = _server.URLs().getAll;
+        var url = _server.URLs().getAll + params.query;
         url = url.replace(':dbName', params.db);
         unirest.get(url).end(next);
       }
 
-      getAll({db: 'test'}, function(response){
+      getAll({db: 'test', query: ''}, function(response){
         var data = response.body.data;
         assert.equal(response.body.db, 'test');
         assert.equal(data.key1, 'value1');
         assert.equal(data.key2, 'value2');
         assert.equal(data.key3, 'value3');
         assert.equal(data.key4, null);
-        done();
+        getAll({db: 'test', query: '?gt=key2'}, function(response){
+          var data = response.body.data;
+          assert.equal(response.body.db, 'test');
+          assert.equal(data.key1, null);
+          assert.equal(data.key2, null);
+          assert.equal(data.key3, 'value3');
+          assert.equal(data.key4, null);
+          done();
+        });
       });
     });
 

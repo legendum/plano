@@ -64,6 +64,18 @@ Example:
 Response:
     `{"db":"myDatabaseName","data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843}`
 
+NOTE: This _optionally_ allows query parameters to be passed to LevelDB:
+* `?lt` (less than) - return keys and values where the key is less than this param
+* `?gt` (greater than) - return keys and values where the key is greater than this param
+* `?lte` (less than or equal) - return keys and values where the key is less than or equal to this param
+* `?gte` (greater than or equal) - return keys and values where the key is greater than or equal to this param
+
+Example:
+    `curl http://localhost:9999/db/myDatabaseName?lt=myKey2`
+
+Response:
+    `{"db":"myDatabaseName","data":{"myKey1":"myValue1"},"time":1453889946843}`
+
 #### GET `http://addr:port/db/:dbName/:fromKey/:toKey`
 
 Get the keys and values for a range of keys in a database (the range is inclusive).
@@ -87,3 +99,4 @@ Yes, you can add `?callback=myCallback` to have the response be sent as JavaScri
 ## TODO
 
 * Add Basic Auth
+* Restrict the creation of new databases somehow
