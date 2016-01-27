@@ -6,7 +6,8 @@ A simple single-process REST server for LevelDB.
 
 ## How to run the server
 
-    $(npm bin)/plano --addr=127.0.0.1 --port=9876 &
+    > npm install plano
+    > $(npm bin)/plano --addr=127.0.0.1 --port=9876 &
     
 #### Default command line options
 * The default `addr` is `0.0.0.0`
@@ -14,29 +15,54 @@ A simple single-process REST server for LevelDB.
 
 ## HTTP API
 
-#### PUT `http://addr:port/dbName/key`
+#### PUT `http://addr:port/db/:dbName/:key`
 
 The *body* of the PUT request is the value to be stored in the database.
 
-Response:
-    {"db":"myDatabaseName","key":"myKey","value":"theStoredValue"}
+Params
+* `:dbName` - your database name
+* `:key` - the key whose value is to be stored in the database (in the body of the request)
+* `?callback` - an optional JavaScript callback function for JSONP requests
 
-#### GET `http://addr:port/dbName/key`
+Example:
+    `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
+
+Response:
+    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue"}`
+
+#### GET `http://addr:port/db/:dbName/:key`
 
 Get the value for a key in a database.
 
+Params
+* `:dbName` - your database name
+* `:key` - the key whose value is to be retrieved from the database
+* `?callback` - an optional JavaScript callback function for JSONP requests
+
+Example:
+    `curl http://localhost:9999/db/myDatabaseName/myKey`
+
 Response:
-    {"db":"myDatabaseName","key":"myKey","value":"myStoredValue"}
+    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue"}`
 
 Error response:
-    {"error":"Key not found in database [myOtherKey]"}
+    `{"error":"Key not found in database [myOtherKey]"}`
     
-#### GET `http://addr:port/dbName/fromKey/toKey`
+#### GET `http://addr:port/db/:dbName/:fromKey/:toKey`
 
 Get all keys and values for a range of keys in a database (the range is inclusive).
 
+Params
+* `:dbName` - your database name
+* `:fromKey` - the key at the start of the range
+* `:toKey` - the key at the end of the range
+* `?callback` - an optional JavaScript callback function for JSONP requests
+
+Example:
+    `curl http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
+
 Response:
-  {"db":"myDatabaseName","fromKey":"key1","toKey":"key2","data":{"key1":"value1","key2":"value2"}}
+    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","data":{"myKey1":"myValue1","myKey2":"myValue2"}}`
 
 ## JSONP
 
