@@ -1,0 +1,38 @@
+{
+  "name": "plano",
+  "private": false,
+  "description": "A simple single-process REST server for LevelDB",
+  "keywords": [
+    "database",
+    "leveldb",
+    "server",
+    "REST",
+    "HTTP"
+  ],
+  "author": {
+    "name": "Kevin Hutchinson",
+    "email": "kevin.hutchinson@legendum.com"
+  },
+  "bin": "./bin/plano.js",
+  "dependencies": {
+    "http-status-codes": "^1.0.5",
+    "level": "^1.4.0",
+    "minimist": "^1.2.0",
+    "restify": "^4.0.3"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.4.2",
+    "unirest": "^0.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/legendum/plano.git"
+  },
+  "scripts": {
+    "test": "mocha ./test"
+  },
+  "engine": "node >= 0.10.25",
+  "license": "MIT",
+  "version": "0.0.1"
+}
