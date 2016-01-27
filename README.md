@@ -16,9 +16,9 @@ A simple single-process REST server for LevelDB.
 
 ## HTTP API
 
-#### PUT `http://addr:port/db/:dbName/:key`
+#### POST or PUT `http://addr:port/db/:dbName/:key`
 
-The *body* of the PUT request is the value to be stored in the database.
+The *body* of the POST or PUT request is the value to be stored in the database.
 
 Params
 * `:dbName` - your database name

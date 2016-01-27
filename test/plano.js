@@ -12,15 +12,15 @@ describe('Plano server', function(){
 
   before(function(done){
     _server = new Plano({addr: ADDR, port: PORT});
-    _server.start(function() {
+    _server.start(function(){
       done();
     });
   });
 
   describe('Check the server is running', function(){
-   it('should get the version', function(done) {
+   it('should get the version', function(done){
       unirest.get(_server.URLs().version)
-        .end(function(response) {
+        .end(function(response){
           assert.equal(response.request.path, '/version');
           assert.equal(response.body.version, Plano.VERSION);
           done();
@@ -30,17 +30,23 @@ describe('Plano server', function(){
 
   describe('Check data storage and retrieval', function(){
 
-    it('should put some data', function(done) {
+    it('should put some data', function(done){
       function putData(params, next){
         var url = _server.URLs().put;
         url = url.replace(':dbName', params.db).replace(':key', params.key);
-        unirest.put(url)
+        unirest[params.method || 'put'](url)
           .type('text/plain')
           .send(params.value)
           .end(next);
       }
 
-      putData({db: 'test', key: 'key1', value: 'value1'}, function(response){
+      function postData(params, next){
+        params.method = 'post';
+        putData(params, next);
+      }
+
+      // We'll do one post and a couple of puts, just to prove they all work...
+      postData({db: 'test', key: 'key1', value: 'value1'}, function(response){
         assert.equal(response.body.db, 'test');
         assert.equal(response.body.key, 'key1');
         assert.equal(response.body.value, 'value1');
@@ -58,7 +64,7 @@ describe('Plano server', function(){
       });
     });
 
-    it('should get some data', function(done) {
+    it('should get some data', function(done){
       function getData(params, next){
         var url = _server.URLs().get;
         url = url.replace(':dbName', params.db).replace(':key', params.key);
@@ -86,7 +92,7 @@ describe('Plano server', function(){
       });
     });
 
-    it('should get a range of data', function(done) {
+    it('should get a range of data', function(done){
       function getAll(params, next){
         var url = _server.URLs().getAll;
         url = url.replace(':dbName', params.db)
