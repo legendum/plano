@@ -7,11 +7,12 @@ A simple single-process REST server for LevelDB.
 ## How to run the server
 
     > npm install plano
-    > $(npm bin)/plano --addr=127.0.0.1 --port=9876 &
+    > $(npm bin)/plano --addr=127.0.0.1 --port=9876 --path=./data &
     
 #### Default command line options
 * The default `addr` is `0.0.0.0`
 * The default `port` is `9999`
+* Teh default `path` is `./db` (a folder to store LevelDB data files)
 
 ## HTTP API
 
