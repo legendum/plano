@@ -34,5 +34,5 @@
   },
   "engine": "node >= 0.10.25",
   "license": "MIT",
-  "version": "0.0.5"
+  "version": "0.0.6"
 }

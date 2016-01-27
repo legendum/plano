@@ -7,7 +7,7 @@ A simple single-process REST server for LevelDB.
 ## Why use LevelDB?
 LevelDB is more than just a key/value store. It's impressively fast, _and_ it
 offers range queries to retrieve keys and values within bounds. This enables
-LevelDB to be used to solve problems that would typically require an RDBMS.
+LevelDB to solve problems that might typically require a relational database.
 
 ## How to run the server
 
@@ -91,6 +91,16 @@ Example:
 
 Response:
     `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843}`
+
+#### GET `http://addr:port/version`
+
+Get the current version.
+
+Example:
+    `curl http://localhost:9999/version`
+
+Response:
+    `{"version":"0.0.6","time":1453889946843}`
 
 ## JSONP
 
