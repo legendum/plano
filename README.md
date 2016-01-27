@@ -4,6 +4,11 @@ A simple single-process REST server for LevelDB.
 ## Why call it "plano"?
 "Plano" is Spanish for flat or level. Simple really?
 
+## Why use LevelDB?
+LevelDB is more than just a key/value store. It's impressively fast, _and_ it
+offers range queries to retrieve keys and values within bounds. This enables
+LevelDB to be used to solve problems that would typically require an RDBMS.
+
 ## How to run the server
 
     > npm install plano
@@ -29,7 +34,7 @@ Example:
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue"}`
+    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue","time":1453889946843}`
 
 #### GET `http://addr:port/db/:dbName/:key`
 
@@ -44,14 +49,24 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue"}`
+    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue","time":1453889946843}`
 
 Error response:
-    `{"error":"Key not found in database [myOtherKey]"}`
+    `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
     
+#### GET `http://addr:port/db/:dbName`
+
+Get all keys and values in a database.
+
+Example:
+    `curl http://localhost:9999/db/myDatabaseName`
+
+Response:
+    `{"db":"myDatabaseName","data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843}`
+
 #### GET `http://addr:port/db/:dbName/:fromKey/:toKey`
 
-Get all keys and values for a range of keys in a database (the range is inclusive).
+Get the keys and values for a range of keys in a database (the range is inclusive).
 
 Params
 * `:dbName` - your database name
@@ -63,7 +78,7 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
 
 Response:
-    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","data":{"myKey1":"myValue1","myKey2":"myValue2"}}`
+    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843}`
 
 ## JSONP
 

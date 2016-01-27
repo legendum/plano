@@ -92,23 +92,41 @@ describe('Plano server', function(){
       });
     });
 
-    it('should get a range of data', function(done){
+    it('should get all data in a database', function(done){
       function getAll(params, next){
         var url = _server.URLs().getAll;
+        url = url.replace(':dbName', params.db);
+        unirest.get(url).end(next);
+      }
+
+      getAll({db: 'test'}, function(response){
+        var data = response.body.data;
+        assert.equal(response.body.db, 'test');
+        assert.equal(data.key1, 'value1');
+        assert.equal(data.key2, 'value2');
+        assert.equal(data.key3, 'value3');
+        assert.equal(data.key4, null);
+        done();
+      });
+    });
+
+    it('should get a range of data', function(done){
+      function getRange(params, next){
+        var url = _server.URLs().getRange;
         url = url.replace(':dbName', params.db)
                  .replace(':fromKey', params.fromKey)
                  .replace(':toKey', params.toKey);
         unirest.get(url).end(next);
       }
 
-      getAll({db: 'test', fromKey: 'key2', toKey: 'key3'}, function(response){
+      getRange({db: 'test', fromKey: 'key2', toKey: 'key3'}, function(response){
         var data = response.body.data;
         assert.equal(response.body.db, 'test');
         assert.equal(response.body.fromKey, 'key2');
         assert.equal(response.body.toKey, 'key3');
         assert.equal(data.key2, 'value2');
         assert.equal(data.key3, 'value3');
-        getAll({db: 'test', fromKey: 'key3', toKey: 'key4'}, function(response){
+        getRange({db: 'test', fromKey: 'key3', toKey: 'key4'}, function(response){
           var data = response.body.data;
           assert.equal(response.body.db, 'test');
           assert.equal(response.body.fromKey, 'key3');
