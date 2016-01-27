@@ -12,7 +12,7 @@ A simple single-process REST server for LevelDB.
 #### Default command line options
 * The default `addr` is `0.0.0.0`
 * The default `port` is `9999`
-* Teh default `path` is `./db` (a folder to store LevelDB data files)
+* The default `path` is `./db` (a folder to store LevelDB data files)
 
 ## HTTP API
 
