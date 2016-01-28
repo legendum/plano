@@ -129,7 +129,7 @@ All API methods return promises.
     plano.API.get("myDatabaseName", "myKey1").then(function(body){
       // Our key/value pair is retrieved
       body.data.myKey1 === "myValue1";
-      body.data.myKey1 === null; // we didn't request it
+      body.data.myKey2 === null; // we didn't request it
     });
 
 #### Get all data in a table using the API
