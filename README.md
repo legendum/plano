@@ -129,7 +129,7 @@ All API methods return promises.
     plano.API.get("myDatabaseName", "myKey1").then(function(body){
       // Our key/value pair is retrieved
       body.data.myKey1 === "myValue1";
-      body.data.myKey2 === null; // we didn't request it
+      body.data.myKey2 === undefined; // we didn't request it
     });
 
 #### Get all data in a table using the API
@@ -144,7 +144,7 @@ All API methods return promises.
 
     plano.API.getAll("myDatabaseName", {gt: "myKey1"}).then(function(body){
       // All key/value pairs are retrieved in "body.data"
-      body.data.myKey1 === null; // it's not greater than "myKey1"
+      body.data.myKey1 === undefined; // it's not greater than "myKey1"
       body.data.myKey2 === "myValue2";
     });
 
@@ -153,7 +153,7 @@ All API methods return promises.
     plano.API.getRange("myDatabaseName", "myKey0", "myKey1").then(function(body){
       // All key/value pairs are retrieved in "body.data"
       body.data.myKey1 === "myValue1";
-      body.data.myKey2 === null; // it's greater than "myKey1"
+      body.data.myKey2 === undefined; // it's greater than "myKey1"
     });
 
 ## JSONP
