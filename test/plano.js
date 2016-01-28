@@ -210,6 +210,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7.toString(), _date.toString());
+        assert.equal(body.data.key8.toString(), [1,2,3].toString());
       }).then(function(){
         done();
       }).catch(function(error){
@@ -224,6 +225,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7, null); // outside the range
+        assert.equal(body.data.key8, null); // outside the range
       }).then(function(){
         done();
       }).catch(function(error){
