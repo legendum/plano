@@ -27,8 +27,8 @@ The *body* of the POST or PUT request is the value to be stored in the database.
 When sending a JSON value, be sure to use a content type of "application/json",
 otherwise "text/plain" should work fine for most other value datatypes.
 
-Params
-* `:dbName` - your database name
+__Params__
+* `:dbName` - your database name (it'll be created if it doesn't exist)
 * `:key` - the key whose value is to be stored in the database (in the body of the request)
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
@@ -49,8 +49,8 @@ Response:
 
 Get the value for a key in a database.
 
-Params
-* `:dbName` - your database name
+__Params__
+* `:dbName` - your database name (it'll be created if it doesn't exist)
 * `:key` - the key whose value is to be retrieved from the database
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
@@ -72,6 +72,9 @@ Error response:
 #### GET `http://addr:port/db/:dbName`
 
 Get all keys and values in a database.
+
+__Params__
+* `:dbName` - your database name (it'll be created if it doesn't exist)
 
 Example:
     `curl http://localhost:9999/db/myDatabaseName`
@@ -95,8 +98,8 @@ Response:
 
 Get the keys and values for a range of keys in a database (the range is inclusive).
 
-Params
-* `:dbName` - your database name
+__Params__
+* `:dbName` - your database name (it'll be created if it doesn't exist)
 * `:fromKey` - the key at the start of the range
 * `:toKey` - the key at the end of the range
 * `?callback` - an optional JavaScript callback function for JSONP requests
@@ -127,7 +130,8 @@ Plano also makes a simple API available to Node programs, like this:
       // We're running!
     });
 
-All API methods return promises.
+All API methods return `Promise` objects. Values may be plain strings or more
+complex objects. The API attempts to handle data encoding issues transparently.
 
 #### Put data using the API
 
