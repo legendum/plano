@@ -118,7 +118,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.2.1","time":1453889946843}`
+    `{"version":"1.2.2","time":1453889946843}`
 
 ## API
 
