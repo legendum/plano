@@ -118,7 +118,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.2.0","time":1453889946843}`
+    `{"version":"1.2.1","time":1453889946843}`
 
 ## API
 
@@ -130,8 +130,9 @@ Plano also makes a simple API available to Node programs, like this:
       // We're running!
     });
 
-All API methods return `Promise` objects. Values may be plain strings or more
-complex objects. The API attempts to handle data encoding issues transparently.
+All API methods return `Promise` objects. Values may be plain strings, booleans,
+numbers, `Date` objects or more complex objects like arrays or hashes.
+The API attempts to handle all data encoding and decoding transparently.
 
 #### Put data using the API
 

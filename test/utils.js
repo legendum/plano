@@ -3,7 +3,7 @@
 var assert = require('chai').assert,
     utils = require('../lib/utils');
 
-describe('utils', function(){
+describe('Plano utils', function(){
 
  it('should check if a directory exists', function(){
     assert.isTrue(utils.dirExists('.'));

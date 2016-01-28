@@ -6,7 +6,8 @@ var ADDR = '0.0.0.0',
 var assert = require('chai').assert,
     unirest = require('unirest'),
     Plano = require('../lib/plano'),
-    _server;
+    _server,
+    _date = new Date();
 
 describe('Plano server', function(){
 
@@ -28,12 +29,12 @@ describe('Plano server', function(){
     });
   });
 
-  describe('Check data storage and retrieval', function(){
+  describe('Data storage and retrieval', function(){
 
     it('should put some data', function(done){
       function putData(params, next){
         var url = _server.URLs().put,
-            value = params.value;
+            value = Plano.utils.wrap(params.value);
         url = url.replace(':dbName', params.db).replace(':key', params.key);
         unirest[params.method || 'put'](url)
           .type(typeof value === 'object' ? 'application/json' : 'text/plain')
@@ -50,9 +51,10 @@ describe('Plano server', function(){
       postData({db: 'test', key: 'key1', value: 'value1'}, function(response){
         assert.equal(response.body.db, 'test');
         assert.equal(response.body.data.key1, 'value1');
-        putData({db: 'test', key: 'key2', value: 'value2'}, function(response){
+        putData({db: 'test', key: 'key2', value: _date}, function(response){
           assert.equal(response.body.db, 'test');
-          assert.equal(response.body.data.key2, 'value2');
+          assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(),
+                       _date.toString());
           putData({db: 'test', key: 'key3', value: {value3: true}}, function(response){
             assert.equal(response.body.db, 'test');
             assert.equal(response.body.data.key3.value3, true); // boo :-(
@@ -74,7 +76,7 @@ describe('Plano server', function(){
         assert.equal(response.body.data.key1, 'value1');
         getData({db: 'test', key: 'key2'}, function(response){
           assert.equal(response.body.db, 'test');
-          assert.equal(response.body.data.key2, 'value2');
+          assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(), _date.toString());
           getData({db: 'test', key: 'key3'}, function(response){
             assert.equal(response.body.db, 'test');
             assert.equal(response.body.data.key3.value3, true);
@@ -98,7 +100,7 @@ describe('Plano server', function(){
         var data = response.body.data;
         assert.equal(response.body.db, 'test');
         assert.equal(data.key1, 'value1');
-        assert.equal(data.key2, 'value2');
+        assert.equal(Plano.utils.unwrap(data.key2).toString(), _date.toString());
         assert.equal(data.key3.value3, true);
         assert.equal(data.key4, null);
         getAll({db: 'test', query: '?gt=key2'}, function(response){
@@ -127,7 +129,7 @@ describe('Plano server', function(){
         assert.equal(response.body.db, 'test');
         assert.equal(response.body.fromKey, 'key2');
         assert.equal(response.body.toKey, 'key3');
-        assert.equal(data.key2, 'value2');
+        assert.equal(Plano.utils.unwrap(data.key2).toString(), _date.toString());
         assert.equal(data.key3.value3, true);
         getRange({db: 'test', fromKey: 'key3', toKey: 'key4'}, function(response){
           var data = response.body.data;
@@ -143,38 +145,53 @@ describe('Plano server', function(){
     });
   });
 
-  describe('The client API', function(){
+  describe('Client API', function(){
 
     it('should get the version', function(done){
       _server.API.version().then(function(version){
         assert.equal(version, Plano.VERSION);
-      }).catch(function(error){
-        console.error(error);
       }).then(function(){
         done();
+      }).catch(function(error){
+        console.error(error);
       });
     });
 
     it('should put some data', function(done){
       _server.API.put('test', 'key5', {value5: '➎'}).then(function(body){
         assert.equal(body.data.key5.value5, '➎');
-        return _server.API.put('test', 'key6', 'value6');
+        return _server.API.put('test', 'key6', 6);
+      }).then(function(body){
+        assert.equal(body.data.key6, 6);
+        return _server.API.put('test', 'key7', _date);
+      }).then(function(body){
+        assert.equal(body.data.key7.toString(), _date.toString());
+        return _server.API.put('test', 'key8', [1,2,3]);
+      }).then(function(body){
+        assert.equal(body.data.key8.toString(), [1,2,3].toString());
+        done();
       }).catch(function(error){
         console.error(error);
-      }).then(function(body){
-        assert.equal(body.data.key6, 'value6');
-      }).then(function(){
-        done();
       });
     });
 
     it('should get some data', function(done){
       _server.API.get('test', 'key5').then(function(body){
         assert.equal(body.data.key5.value5, '➎');
-      }).catch(function(error){
-        console.error(error);
+      }).then(function(){
+        return _server.API.get('test', 'key6');
+      }).then(function(body){
+        assert.equal(body.data.key6, 6);
+        return _server.API.get('test', 'key7');
+      }).then(function(body){
+        assert.equal(body.data.key7.toString(), _date.toString());
+        return _server.API.get('test', 'key8');
+      }).then(function(body){
+        assert.equal(body.data.key8.toString(), [1,2,3].toString());
       }).then(function(){
         done();
+      }).catch(function(error){
+        console.error(error);
       });
     });
 
@@ -183,19 +200,20 @@ describe('Plano server', function(){
         assert.equal(body.data.key3, null); // not greater than "key4"
         assert.equal(body.data.key4, null); // not set
         assert.equal(body.data.key5.value5, '➎');
-        assert.equal(body.data.key6, 'value6');
-      }).catch(function(error){
-        console.error(error);
+        assert.equal(body.data.key6, 6);
+        assert.equal(body.data.key7.toString(), _date.toString());
       }).then(function(){
         return _server.API.getAll('test')
       }).then(function(body){
         assert.equal(body.data.key3.value3, true); // it's included in the range
         assert.equal(body.data.key4, null); // not set
         assert.equal(body.data.key5.value5, '➎');
-        assert.equal(body.data.key6, 'value6');
-        assert.equal(body.data.key7, null); // not set
+        assert.equal(body.data.key6, 6);
+        assert.equal(body.data.key7.toString(), _date.toString());
       }).then(function(){
         done();
+      }).catch(function(error){
+        console.error(error);
       });
     });
 
@@ -204,12 +222,12 @@ describe('Plano server', function(){
         assert.equal(body.data.key3.value3, true);
         assert.equal(body.data.key4, null); // not set
         assert.equal(body.data.key5.value5, '➎');
-        assert.equal(body.data.key6, 'value6');
-        assert.equal(body.data.key7, null); // not set
-      }).catch(function(error){
-        console.error(error);
+        assert.equal(body.data.key6, 6);
+        assert.equal(body.data.key7, null); // outside the range
       }).then(function(){
         done();
+      }).catch(function(error){
+        console.error(error);
       });
     });
   });
