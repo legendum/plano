@@ -19,22 +19,31 @@ LevelDB to solve problems that might typically require a relational database.
 * The default `port` is `9999`
 * The default `path` is `./db` (a folder to store LevelDB data files)
 
-## HTTP API
+## HTTP API (see below for a native JavaScript API)
 
 #### POST or PUT `http://addr:port/db/:dbName/:key`
 
 The *body* of the POST or PUT request is the value to be stored in the database.
+When sending a JSON value, be sure to use a content type of "application/json",
+otherwise "text/plain" should work fine for most other value datatypes.
 
 Params
 * `:dbName` - your database name
 * `:key` - the key whose value is to be stored in the database (in the body of the request)
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
-Example:
+Example (plain text value):
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
     `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
+
+Example (JSON value):
+    `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
+
+Response:
+    `{"db":"myDatabaseName","data":{"status":{"ok":true}},"time":1453972791640}`
+
 
 #### GET `http://addr:port/db/:dbName/:key`
 
@@ -45,11 +54,17 @@ Params
 * `:key` - the key whose value is to be retrieved from the database
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
-Example:
+Example (plain text value):
     `curl http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
     `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
+
+Example (JSON value):
+    `curl http://localhost:9999/db/myDatabaseName/status`
+
+Response:
+    `{"db":"myDatabaseName","data":{"status":{"ok":true}},"time":1453972859367}`
 
 Error response:
     `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
@@ -100,7 +115,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"0.0.6","time":1453889946843}`
+    `{"version":"1.2.0","time":1453889946843}`
 
 ## API
 
