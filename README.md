@@ -34,7 +34,7 @@ Example:
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue","time":1453889946843}`
+    `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
 
 #### GET `http://addr:port/db/:dbName/:key`
 
@@ -49,7 +49,7 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","key":"myKey","value":"myStoredValue","time":1453889946843}`
+    `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
 
 Error response:
     `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
@@ -101,6 +101,60 @@ Example:
 
 Response:
     `{"version":"0.0.6","time":1453889946843}`
+
+## API
+
+Plano also makes a simple API available to Node programs, like this:
+
+    var plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
+    plano.start(function(){
+      // We're running!
+    });
+
+All API methods return promises.
+
+#### Put data using the API
+
+    plano.API.put("myDatabaseName", "myKey1", "myValue1").then(function(body){
+      // Our first key/value pair is now stored
+      body.data.myKey1 === "myValue1";
+      return plano.API.put("myDatabaseName", "myKey2", "myValue2");
+    }).then(function(body){
+      // Our second key/value pair is now stored
+      body.data.myKey2 === "myValue2";
+    });
+
+#### Get data using the API
+
+    plano.API.get("myDatabaseName", "myKey1").then(function(body){
+      // Our key/value pair is retrieved
+      body.data.myKey1 === "myValue1";
+      body.data.myKey1 === null; // we didn't request it
+    });
+
+#### Get all data in a table using the API
+
+    plano.API.getAll("myDatabaseName").then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === "myValue1";
+      body.data.myKey2 === "myValue2";
+    });
+
+#### Get all data in a table using the API (with a "greater than" option)
+
+    plano.API.getAll("myDatabaseName", {gt: "myKey1"}).then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === null; // it's not greater than "myKey1"
+      body.data.myKey2 === "myValue2";
+    });
+
+#### Get a range of data using the API (the range is inclusive)
+
+    plano.API.getRange("myDatabaseName", "myKey0", "myKey1").then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === "myValue1";
+      body.data.myKey2 === null; // it's greater than "myKey1"
+    });
 
 ## JSONP
 

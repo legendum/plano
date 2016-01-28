@@ -48,16 +48,13 @@ describe('Plano server', function(){
       // We'll do one post and a couple of puts, just to prove they all work...
       postData({db: 'test', key: 'key1', value: 'value1'}, function(response){
         assert.equal(response.body.db, 'test');
-        assert.equal(response.body.key, 'key1');
-        assert.equal(response.body.value, 'value1');
+        assert.equal(response.body.data.key1, 'value1');
         putData({db: 'test', key: 'key2', value: 'value2'}, function(response){
           assert.equal(response.body.db, 'test');
-          assert.equal(response.body.key, 'key2');
-          assert.equal(response.body.value, 'value2');
+          assert.equal(response.body.data.key2, 'value2');
           putData({db: 'test', key: 'key3', value: 'value3'}, function(response){
             assert.equal(response.body.db, 'test');
-            assert.equal(response.body.key, 'key3');
-            assert.equal(response.body.value, 'value3');
+            assert.equal(response.body.data.key3, 'value3');
             done();
           });
         });
@@ -73,16 +70,13 @@ describe('Plano server', function(){
 
       getData({db: 'test', key: 'key1'}, function(response){
         assert.equal(response.body.db, 'test');
-        assert.equal(response.body.key, 'key1');
-        assert.equal(response.body.value, 'value1');
+        assert.equal(response.body.data.key1, 'value1');
         getData({db: 'test', key: 'key2'}, function(response){
           assert.equal(response.body.db, 'test');
-          assert.equal(response.body.key, 'key2');
-          assert.equal(response.body.value, 'value2');
+          assert.equal(response.body.data.key2, 'value2');
           getData({db: 'test', key: 'key3'}, function(response){
             assert.equal(response.body.db, 'test');
-            assert.equal(response.body.key, 'key3');
-            assert.equal(response.body.value, 'value3');
+            assert.equal(response.body.data.key3, 'value3');
             getData({db: 'test', key: 'key4'}, function(response){
               assert.equal(response.body.error, 'Key not found in database [key4]');
               done();
@@ -144,6 +138,72 @@ describe('Plano server', function(){
           assert.equal(data.key4, null);
           done();
         });
+      });
+    });
+  });
+
+  describe('The client API', function(){
+
+    it('should get the version', function(done){
+      _server.API.version().then(function(version){
+        assert.equal(version, Plano.VERSION);
+      }).catch(function(error){
+        console.error(error);
+      }).then(function(){
+        done();
+      });
+    });
+
+    it('should put some data', function(done){
+      _server.API.put('test', 'key5', 'value5').then(function(body){
+        assert.equal(body.data.key5, 'value5');
+      }).catch(function(error){
+        console.error(error);
+      }).then(function(){
+        done();
+      });
+    });
+
+    it('should get some data', function(done){
+      _server.API.get('test', 'key5').then(function(body){
+        assert.equal(body.data.key5, 'value5');
+      }).catch(function(error){
+        console.error(error);
+      }).then(function(){
+        done();
+      });
+    });
+
+    it('should get all data', function(done){
+      _server.API.getAll('test', {gt: 'key4'}).then(function(body){
+        assert.equal(body.data.key3, null); // not greater than "key4"
+        assert.equal(body.data.key4, null); // not set
+        assert.equal(body.data.key5, 'value5');
+        assert.equal(body.data.key6, null); // not set
+      }).catch(function(error){
+        console.error(error);
+      }).then(function(){
+        return _server.API.getAll('test')
+      }).then(function(body){
+        assert.equal(body.data.key3, 'value3'); // it's now included in all data
+        assert.equal(body.data.key4, null); // not set
+        assert.equal(body.data.key5, 'value5');
+        assert.equal(body.data.key6, null); // not set
+      }).then(function(){
+        done();
+      });
+    });
+
+    it('should get a range of data', function(done){
+      _server.API.getRange('test', 'key3', 'key6').then(function(body){
+        assert.equal(body.data.key3, 'value3');
+        assert.equal(body.data.key4, null); // not set
+        assert.equal(body.data.key5, 'value5');
+        assert.equal(body.data.key6, null); // not set
+      }).catch(function(error){
+        console.error(error);
+      }).then(function(){
+        done();
       });
     });
   });
