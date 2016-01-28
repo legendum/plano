@@ -106,7 +106,8 @@ Response:
 
 Plano also makes a simple API available to Node programs, like this:
 
-    var plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
+    var Plano = require('plano'),
+        plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
     plano.start(function(){
       // We're running!
     });
