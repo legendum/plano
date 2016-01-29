@@ -39,6 +39,10 @@ Start a Plano server from inside your JavaScript code like this:
       // We're running!
     });
 
+Once your Plano server is running, you can make API calls to it from multiple
+servers. The only restriction is that just one Plano server process may run at
+a time on each address and port.
+
 All Plano API methods return `Promise` objects. Values may be plain strings,
 booleans, numbers, `Date` objects or more complex objects like arrays or
 hashes. The API attempts to handle all data encoding and decoding transparently
@@ -230,3 +234,4 @@ Yes, you can add a `?callback=myCallback` query parameter to have the response b
 * Restrict the creation of new databases somehow
 * Add batch operations
 * API for web browsers
+* Mirroring/replication
