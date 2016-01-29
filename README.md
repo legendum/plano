@@ -1,7 +1,6 @@
-# plano
-A simple single-process REST server for LevelDB.
+# plano [![Build Status](https://travis-ci.org/legendum/plano.svg)](http://travis-ci.org/legendum/plano)
 
-![Travis-CI](https://travis-ci.org/legendum/plano.svg) https://travis-ci.org/legendum/plano
+A simple single-process REST server for LevelDB.
 
 ## What is Plano?
 Plano is a simple single-process REST server to provide LevelDB as a network
