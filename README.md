@@ -19,7 +19,75 @@ LevelDB to solve problems that might typically require a relational database.
 * The default `port` is `9999`
 * The default `path` is `./db` (a folder to store LevelDB data files)
 
-## HTTP API (see below for a native JavaScript API)
+## Native JavaScript API (see below for a raw HTTP API)
+
+Plano also makes a simple API available to Node programs, like this:
+
+    var Plano = require('plano'),
+        plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
+    plano.start(function(){
+      // We're running!
+    });
+
+All API methods return `Promise` objects. Values may be plain strings, booleans,
+numbers, `Date` objects or more complex objects like arrays or hashes.
+The API attempts to handle all data encoding and decoding transparently.
+
+#### Put data using the API
+
+    plano.API.put("myDatabaseName", "myKey1", "myValue1").then(function(body){
+      // Our first key/value pair is now stored (a simple string)
+      body.data.myKey1 === "myValue1";
+      return plano.API.put("myDatabaseName", "myKey2", 2);
+    }).then(function(body){
+      // Our second key/value pair is now stored (a simple number)
+      body.data.myKey2 === 2;
+      return plano.API.put("myDatabaseName", "myKey3", {num: 3, odd: true});
+    }).then(function(body){
+      // Our third key/value pair is now stored (a complex object)
+      body.data.myKey3.num === 3;
+      body.data.myKey3.odd === true;
+    });
+
+#### Get data using the API
+
+    plano.API.get("myDatabaseName", "myKey1").then(function(body){
+      // Our key/value pair is retrieved
+      body.data.myKey1 === "myValue1";
+      body.data.myKey2 === undefined; // we didn't request it
+      body.data.myKey3 === undefined; // we didn't request it
+    });
+
+#### Get all data in a table using the API
+
+    plano.API.getAll("myDatabaseName").then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === "myValue1";
+      body.data.myKey2 === 2;
+      body.data.myKey3.num === 3;
+      body.data.myKey3.odd === true;
+    });
+
+#### Get all data in a table using the API (with a "greater than" option)
+
+    plano.API.getAll("myDatabaseName", {gt: "myKey1"}).then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === undefined; // it's not greater than "myKey1"
+      body.data.myKey2 === 2;
+      body.data.myKey3.num === 3;
+      body.data.myKey3.odd === true;
+    });
+
+#### Get a range of data using the API (the range is inclusive)
+
+    plano.API.getRange("myDatabaseName", "myKey0", "myKey1").then(function(body){
+      // All key/value pairs are retrieved in "body.data"
+      body.data.myKey1 === "myValue1";
+      body.data.myKey2 === undefined; // it's greater than "myKey1"
+      body.data.myKey3 === undefined; // it's greater than "myKey1"
+    });
+
+## HTTP API
 
 #### POST or PUT `http://addr:port/db/:dbName/:key`
 
@@ -43,7 +111,6 @@ Example (JSON value):
 
 Response:
     `{"db":"myDatabaseName","data":{"status":{"ok":true}},"time":1453972791640}`
-
 
 #### GET `http://addr:port/db/:dbName/:key`
 
@@ -118,70 +185,15 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.2.2","time":1453889946843}`
-
-## API
-
-Plano also makes a simple API available to Node programs, like this:
-
-    var Plano = require('plano'),
-        plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
-    plano.start(function(){
-      // We're running!
-    });
-
-All API methods return `Promise` objects. Values may be plain strings, booleans,
-numbers, `Date` objects or more complex objects like arrays or hashes.
-The API attempts to handle all data encoding and decoding transparently.
-
-#### Put data using the API
-
-    plano.API.put("myDatabaseName", "myKey1", "myValue1").then(function(body){
-      // Our first key/value pair is now stored
-      body.data.myKey1 === "myValue1";
-      return plano.API.put("myDatabaseName", "myKey2", "myValue2");
-    }).then(function(body){
-      // Our second key/value pair is now stored
-      body.data.myKey2 === "myValue2";
-    });
-
-#### Get data using the API
-
-    plano.API.get("myDatabaseName", "myKey1").then(function(body){
-      // Our key/value pair is retrieved
-      body.data.myKey1 === "myValue1";
-      body.data.myKey2 === undefined; // we didn't request it
-    });
-
-#### Get all data in a table using the API
-
-    plano.API.getAll("myDatabaseName").then(function(body){
-      // All key/value pairs are retrieved in "body.data"
-      body.data.myKey1 === "myValue1";
-      body.data.myKey2 === "myValue2";
-    });
-
-#### Get all data in a table using the API (with a "greater than" option)
-
-    plano.API.getAll("myDatabaseName", {gt: "myKey1"}).then(function(body){
-      // All key/value pairs are retrieved in "body.data"
-      body.data.myKey1 === undefined; // it's not greater than "myKey1"
-      body.data.myKey2 === "myValue2";
-    });
-
-#### Get a range of data using the API (the range is inclusive)
-
-    plano.API.getRange("myDatabaseName", "myKey0", "myKey1").then(function(body){
-      // All key/value pairs are retrieved in "body.data"
-      body.data.myKey1 === "myValue1";
-      body.data.myKey2 === undefined; // it's greater than "myKey1"
-    });
+    `{"version":"1.2.3","time":1453889946843}`
 
 ## JSONP
 
-Yes, you can add `?callback=myCallback` to have the response be sent as JavaScript instead of JSON.
+Yes, you can add a `?callback=myCallback` query parameter to have the response be sent as JavaScript instead of JSON.
 
 ## TODO
 
 * Add Basic Auth
 * Restrict the creation of new databases somehow
+* Add batch operations
+* API for web browsers
