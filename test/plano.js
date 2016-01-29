@@ -199,6 +199,19 @@ describe('Plano server', function(){
       });
     });
 
+    it('should delete data', function(done){
+      _server.API.del('test', 'key1').then(function(body){
+        assert.equal(body.deleted, 'key1');
+        return _server.API.get('test', 'key1');
+      }).then(function(body){
+        assert.equal(body.error, 'Key not found in database [key1]');
+      }).then(function(){
+        done();
+      }).catch(function(error){
+        console.error(error);
+      });
+    });
+
     it('should get all data', function(done){
       _server.API.getAll('test', {gt: 'key4'}).then(function(body){
         assert.equal(body.data.key3, null); // not greater than "key4"
@@ -241,7 +254,7 @@ describe('Plano server', function(){
   describe('Gracefully stop the server', function(){
 
     before(function(done){
-      _server.stop();
+      _server.stop(1000);
       done();
     });
 
