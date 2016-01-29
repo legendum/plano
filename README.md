@@ -103,7 +103,7 @@ and efficiently.
 
     plano.API.del("myDatabaseName", "myKey1").then(function(body){
       // Our first key/value pair is now deleted
-      body.deleted === myKey1;
+      body.deleted === "myKey1";
     });
 
 ## HTTP API
