@@ -1,13 +1,22 @@
 # plano
 A simple single-process REST server for LevelDB.
 
+## What is Plano?
+Plano is a simple single-process REST server to provide LevelDB as a network
+service. It performs like a Redis key/value store, except that it also allows
+key range queries whereby all keys and values between a start-key and end-key
+may be retrieved. LevelDB stores data on-disk for greater crash resilience
+than an in-memory Redis server. By default, LevelDB data is compressed too.
+(Note that Redis scales to multiple servers, whereas Plano runs on only one.)
+
 ## Why call it "plano"?
-"Plano" is Spanish for flat or level. Simple really?
+"Plano" is Spanish for flat or _level_. Simple really?
 
 ## Why use LevelDB?
 LevelDB is more than just a key/value store. It's impressively fast, _and_ it
 offers range queries to retrieve keys and values within bounds. This enables
-LevelDB to solve problems that might typically require a relational database.
+LevelDB to solve problems that might typically require a relational database,
+or MongoDB. LevelDB also offers data compression by default, unlike MongoDB.
 
 ## How to run the server
 
@@ -21,7 +30,7 @@ LevelDB to solve problems that might typically require a relational database.
 
 ## Native JavaScript API (see below for a raw HTTP API)
 
-Plano also makes a simple API available to Node programs, like this:
+Start a Plano server from inside your JavaScript code like this:
 
     var Plano = require('plano'),
         plano = new Plano({addr: '0.0.0.0', port: 9999, path: './db'});
@@ -29,9 +38,10 @@ Plano also makes a simple API available to Node programs, like this:
       // We're running!
     });
 
-All API methods return `Promise` objects. Values may be plain strings, booleans,
-numbers, `Date` objects or more complex objects like arrays or hashes.
-The API attempts to handle all data encoding and decoding transparently.
+All Plano API methods return `Promise` objects. Values may be plain strings,
+booleans, numbers, `Date` objects or more complex objects like arrays or
+hashes. The API attempts to handle all data encoding and decoding transparently
+and efficiently.
 
 #### Put data using the API
 
@@ -185,7 +195,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.2.3","time":1453889946843}`
+    `{"version":"1.2.4","time":1453889946843}`
 
 ## JSONP
 

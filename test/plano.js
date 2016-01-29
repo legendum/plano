@@ -19,6 +19,7 @@ describe('Plano server', function(){
   });
 
   describe('Check the server is running', function(){
+
    it('should get the version', function(done){
       unirest.get(_server.URLs().version)
         .end(function(response){
@@ -76,7 +77,8 @@ describe('Plano server', function(){
         assert.equal(response.body.data.key1, 'value1');
         getData({db: 'test', key: 'key2'}, function(response){
           assert.equal(response.body.db, 'test');
-          assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(), _date.toString());
+          assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(),
+                       _date.toString());
           getData({db: 'test', key: 'key3'}, function(response){
             assert.equal(response.body.db, 'test');
             assert.equal(response.body.data.key3.value3, true);
@@ -100,7 +102,8 @@ describe('Plano server', function(){
         var data = response.body.data;
         assert.equal(response.body.db, 'test');
         assert.equal(data.key1, 'value1');
-        assert.equal(Plano.utils.unwrap(data.key2).toString(), _date.toString());
+        assert.equal(Plano.utils.unwrap(data.key2).toString(),
+                     _date.toString());
         assert.equal(data.key3.value3, true);
         assert.equal(data.key4, null);
         getAll({db: 'test', query: '?gt=key2'}, function(response){
@@ -129,7 +132,8 @@ describe('Plano server', function(){
         assert.equal(response.body.db, 'test');
         assert.equal(response.body.fromKey, 'key2');
         assert.equal(response.body.toKey, 'key3');
-        assert.equal(Plano.utils.unwrap(data.key2).toString(), _date.toString());
+        assert.equal(Plano.utils.unwrap(data.key2).toString(),
+                     _date.toString());
         assert.equal(data.key3.value3, true);
         getRange({db: 'test', fromKey: 'key3', toKey: 'key4'}, function(response){
           var data = response.body.data;
@@ -143,7 +147,7 @@ describe('Plano server', function(){
         });
       });
     });
-  });
+  }); // Data storage and retrieval
 
   describe('Client API', function(){
 
@@ -230,6 +234,43 @@ describe('Plano server', function(){
         done();
       }).catch(function(error){
         console.error(error);
+      });
+    });
+  }); // Client API
+
+  describe('Gracefully stop the server', function(){
+
+    before(function(done){
+      _server.stop();
+      done();
+    });
+
+    it('should not put new data', function(done){
+      function putData(params, next){
+        var url = _server.URLs().put;
+        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        unirest.put(url)
+          .type('text/plain')
+          .send(params.value)
+          .end(next);
+      }
+
+      putData({db: 'test', key: 'key1', value: 'newValue1'}, function(response){
+        assert.equal(response.body.error, 'stopping');
+        done();
+      });
+    });
+
+    it('should not get any data', function(done){
+      function getData(params, next){
+        var url = _server.URLs().get;
+        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        unirest.get(url).end(next);
+      }
+
+      getData({db: 'test', key: 'key1'}, function(response){
+        assert.equal(response.body.error, 'stopping');
+        done();
       });
     });
   });
