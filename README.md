@@ -1,6 +1,8 @@
 # plano
 A simple single-process REST server for LevelDB.
 
+![https://travis-ci.org/legendum/plano](https://travis-ci.org/legendum/plano.svg)
+
 ## What is Plano?
 Plano is a simple single-process REST server to provide LevelDB as a network
 service. It performs like a Redis key/value store, except that it also allows
@@ -217,7 +219,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.3.0","time":1453889946843}`
+    `{"version":"1.3.1","time":1453889946843}`
 
 ## JSONP
 
