@@ -147,6 +147,11 @@ decoding transparently and efficiently.
 
 ## HTTP API
 
+The HTTP API returns JSON objects. Each response includes a server timestamp
+called `time` and a server processing duration in milliseconds called `msecs`.
+Params passed to the server are returned in the response as `params`, any data
+in `data` and a list of deleted keys in `deleted`.
+
 #### POST or PUT `http://addr:port/db/:db/:key`
 
 The *body* of the POST or PUT request is the value to be stored in the database.
@@ -162,13 +167,13 @@ Example (plain text value):
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843,"msecs":20}`
 
 Example (JSON value):
     `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972791640}`
+    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972791640,"msecs":20}`
 
 #### GET `http://addr:port/db/:db/:key`
 
@@ -183,16 +188,16 @@ Example (plain text value):
     `curl http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843,"msecs":20}`
 
 Example (JSON value):
     `curl http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972859367}`
+    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972859367,"msecs":20}`
 
 Error response:
-    `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
+    `{"error":"Key not found in database [myOtherKey]","time":1453889946843,"msecs":20}`
     
 #### GET `http://addr:port/db/:db`
 
@@ -205,7 +210,7 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName`
 
 Response:
-    `{"params":{"db":"myDatabaseName"},"data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName"},"data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843,"msecs":20}`
 
 NOTE: This _optionally_ allows query parameters to be passed to LevelDB:
 * `?lt` (less than) - return keys and values where the key is less than this param
@@ -217,7 +222,7 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName?lt=myKey2`
 
 Response:
-    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"data":{"myKey1":"myValue1"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"data":{"myKey1":"myValue1"},"time":1453889946843,"msecs":20}`
 
 #### GET `http://addr:port/db/:db/:fromKey/:toKey`
 
@@ -235,7 +240,7 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
 
 Response:
-    `{"params":{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843,"msecs":20}`
 
 #### DELETE `http://addr:port/db/:db`
 
@@ -249,7 +254,7 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName`
 
 Response:
-    `{"params":{"db":"myDatabaseName"},"deleted":["myKey1","myKey2"],"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName"},"deleted":["myKey1","myKey2"],"time":1453889946843,"msecs":20}`
 
 NOTE: This _optionally_ allows query parameters to be passed to LevelDB:
 * `?lt` (less than) - delete keys and values where the key is less than this param
@@ -261,7 +266,7 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName?lt=myKey2`
 
 Response:
-    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"deleted":["myKey1"],"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"deleted":["myKey1"],"time":1453889946843,"msecs":20}`
 
 #### DELETE `http://addr:port/db/:db/:key`
 
@@ -276,7 +281,7 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"myKey"},"deleted":"myKey","time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"deleted":"myKey","time":1453889946843,"msecs":20}`
 
 #### DELETE `http://addr:port/db/:db/:fromKey/:toKey`
 
@@ -294,7 +299,7 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
 
 Response:
-    `{params:{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"deleted":["myKey1","myKey2"],"time":1453889946843}`
+    `{params:{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"deleted":["myKey1","myKey2"],"time":1453889946843,"msecs":20}`
 
 #### GET `http://addr:port/version`
 
@@ -304,7 +309,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.0.2","time":1453889946843}`
+    `{"version":"2.0.2","time":1453889946843,"msecs":5}`
 
 ## JSONP
 
