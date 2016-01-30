@@ -168,7 +168,7 @@ Example (JSON value):
     `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"params":{"db":"myDatabaseName"},"data":{"status":{"ok":true}},"time":1453972791640}`
+    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972791640}`
 
 #### GET `http://addr:port/db/:db/:key`
 
@@ -189,7 +189,7 @@ Example (JSON value):
     `curl http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"params":{"db":"myDatabaseName"},"data":{"status":{"ok":true}},"time":1453972859367}`
+    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972859367}`
 
 Error response:
     `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
@@ -304,7 +304,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.0.1","time":1453889946843}`
+    `{"version":"2.0.2","time":1453889946843}`
 
 ## JSONP
 
