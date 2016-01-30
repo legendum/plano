@@ -1,9 +1,11 @@
 # plano
+
 A simple single-process REST server for LevelDB.
 
 ![https://travis-ci.org/legendum/plano](https://travis-ci.org/legendum/plano.svg)
 
 ## What is Plano?
+
 Plano is a simple single-process REST server to provide LevelDB as a network
 service. It performs like a Redis key/value store, except that it also allows
 key range queries whereby all keys and values between a start-key and end-key
@@ -12,9 +14,11 @@ than an in-memory Redis server. By default, LevelDB data is compressed too.
 (Note that Redis scales to multiple servers, whereas Plano runs on only one.)
 
 ## Why call it "plano"?
+
 "Plano" is Spanish for flat or _level_. Simple really?
 
 ## Why use LevelDB?
+
 LevelDB is more than just a key/value store. It's impressively fast, _and_ it
 offers range queries to retrieve keys and values within bounds. This enables
 LevelDB to solve problems that might typically require a relational database,
@@ -25,7 +29,8 @@ offers deletion over key ranges. Data tables that are keyed on epoch times
 are easily purged of old data by using the `delRange` API method (below).
 
 ## Use cases for Plano
-Generally it's a _Very Bad Idea™_ to make Plano directly available to web/app
+
+Generally it's a _Very Bad Idea_ to make Plano directly available to web/app
 front-ends because the API doesn't (yet) support authentication/authorization.
 Instead, Plano is ideally suited to the kinds of roles where you might use
 MongoDB, Redis or Riak as part of a secured NodeJS back-end server system.
@@ -38,6 +43,7 @@ complex database schemas and migrations.
     > $(npm bin)/plano --addr=127.0.0.1 --port=9876 --path=./data &
     
 #### Default command line options
+
 * The default `addr` is `0.0.0.0`
 * The default `port` is `9999`
 * The default `path` is `./db` (a folder to store LevelDB data files)
@@ -52,10 +58,15 @@ Start a Plano server from inside your JavaScript code like this:
       // We're running!
     });
 
-All Plano API methods return `Promise` objects. Values may be plain strings,
-booleans, numbers, `Date` objects or more complex objects like arrays or
-hashes. The API attempts to handle all data encoding and decoding transparently
-and efficiently.
+All Plano API methods return `Promise` objects. See https://www.promisejs.org/
+for details if you're not familiar with them.
+
+Keys _must_ be plain strings. If you need to use a different datatype or a more
+complex object, then use `JSON.stringify(key)` to encode it as a string first.
+
+Values may be plain strings, booleans, numbers, `Date` objects or more complex
+objects like arrays or hashes. The API attempts to handle all data encoding and
+decoding transparently and efficiently.
 
 #### Put data using the API
 
@@ -127,14 +138,14 @@ and efficiently.
 
 ## HTTP API
 
-#### POST or PUT `http://addr:port/db/:dbName/:key`
+#### POST or PUT `http://addr:port/db/:db/:key`
 
 The *body* of the POST or PUT request is the value to be stored in the database.
 When sending a JSON value, be sure to use a content type of "application/json",
 otherwise "text/plain" should work fine for most other value datatypes.
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 * `:key` - the key whose value is to be stored in the database (in the body of the request)
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
@@ -142,20 +153,20 @@ Example (plain text value):
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843}`
 
 Example (JSON value):
     `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"db":"myDatabaseName","data":{"status":{"ok":true}},"time":1453972791640}`
+    `{"params":{"db":"myDatabaseName"},"data":{"status":{"ok":true}},"time":1453972791640}`
 
-#### GET `http://addr:port/db/:dbName/:key`
+#### GET `http://addr:port/db/:db/:key`
 
 Get the value for a key in a database.
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 * `:key` - the key whose value is to be retrieved from the database
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
@@ -163,29 +174,29 @@ Example (plain text value):
     `curl http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","data":{"myKey":"myStoredValue"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843}`
 
 Example (JSON value):
     `curl http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"db":"myDatabaseName","data":{"status":{"ok":true}},"time":1453972859367}`
+    `{"params":{"db":"myDatabaseName"},"data":{"status":{"ok":true}},"time":1453972859367}`
 
 Error response:
     `{"error":"Key not found in database [myOtherKey]","time":1453889946843}`
     
-#### GET `http://addr:port/db/:dbName`
+#### GET `http://addr:port/db/:db`
 
 Get all keys and values in a database.
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 
 Example:
     `curl http://localhost:9999/db/myDatabaseName`
 
 Response:
-    `{"db":"myDatabaseName","data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName"},"data":{"myKey1":"myValue1","myKey2":"myValue2","myKey3":"myValue3"},"time":1453889946843}`
 
 NOTE: This _optionally_ allows query parameters to be passed to LevelDB:
 * `?lt` (less than) - return keys and values where the key is less than this param
@@ -197,14 +208,16 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName?lt=myKey2`
 
 Response:
-    `{"db":"myDatabaseName","data":{"myKey1":"myValue1"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"data":{"myKey1":"myValue1"},"time":1453889946843}`
 
-#### GET `http://addr:port/db/:dbName/:fromKey/:toKey`
+#### GET `http://addr:port/db/:db/:fromKey/:toKey`
 
-Get the keys and values for a range of keys in a database (the range is inclusive).
+Get the keys and values for a range of keys in a database (the range is inclusive). If either of your keys includes a slash ("/") then use the following query instead:
+
+GET `http://addr:port/db/:db?gte=:fromKey&lte=:toKey`
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 * `:fromKey` - the key at the start of the range
 * `:toKey` - the key at the end of the range
 * `?callback` - an optional JavaScript callback function for JSONP requests
@@ -213,14 +226,40 @@ Example:
     `curl http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
 
 Response:
-    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"data":{"myKey1":"myValue1","myKey2":"myValue2"},"time":1453889946843}`
 
-#### DELETE `http://addr:port/db/:dbName/:key`
+#### DELETE `http://addr:port/db/:db`
+
+Delete all key/value pairs in a database.
+
+__Params__
+* `:db` - your database name (it'll be created if it doesn't exist)
+* `?callback` - an optional JavaScript callback function for JSONP requests
+
+Example:
+    `curl -X DELETE http://localhost:9999/db/myDatabaseName`
+
+Response:
+    `{"params":{"db":"myDatabaseName"},"deleted":["myKey1","myKey2"],"time":1453889946843}`
+
+NOTE: This _optionally_ allows query parameters to be passed to LevelDB:
+* `?lt` (less than) - delete keys and values where the key is less than this param
+* `?gt` (greater than) - delete keys and values where the key is greater than this param
+* `?lte` (less than or equal) - delete keys and values where the key is less than or equal to this param
+* `?gte` (greater than or equal) - delete keys and values where the key is greater than or equal to this param
+
+Example:
+    `curl -X DELETE http://localhost:9999/db/myDatabaseName?lt=myKey2`
+
+Response:
+    `{"params":{"db":"myDatabaseName","lt":"myKey2"},"deleted":["myKey1"],"time":1453889946843}`
+
+#### DELETE `http://addr:port/db/:db/:key`
 
 Delete a key/value pair in a database.
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 * `:key` - the key whose value is to be retrieved from the database
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
@@ -228,14 +267,16 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"db":"myDatabaseName","deleted":"myKey","time":1453889946843}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"deleted":"myKey","time":1453889946843}`
 
-#### DELETE `http://addr:port/db/:dbName/:fromKey/:toKey`
+#### DELETE `http://addr:port/db/:db/:fromKey/:toKey`
 
-Delete a range of key/value pairs in a database.
+Delete a range of key/value pairs in a database. If either of your keys includes a slash ("/") then use the following query instead:
+
+DELETE `http://addr:port/db/:db?gte=:fromKey&lte=:toKey`
 
 __Params__
-* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:db` - your database name (it'll be created if it doesn't exist)
 * `:fromKey` - the key at the start of the range
 * `:toKey` - the key at the end of the range
 * `?callback` - an optional JavaScript callback function for JSONP requests
@@ -244,7 +285,7 @@ Example:
     `curl -X DELETE http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
 
 Response:
-    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","deleted":["myKey1","myKey2"],"time":1453889946843}`
+    `{params:{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2"},"deleted":["myKey1","myKey2"],"time":1453889946843}`
 
 #### GET `http://addr:port/version`
 
@@ -254,7 +295,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.4.0","time":1453889946843}`
+    `{"version":"2.0.0","time":1453889946843}`
 
 ## JSONP
 

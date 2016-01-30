@@ -36,7 +36,7 @@ describe('Plano server', function(){
       function putData(params, next){
         var url = _server.URLs().put,
             value = Plano.utils.wrap(params.value);
-        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        url = url.replace(':db', params.db).replace(':key', params.key);
         unirest[params.method || 'put'](url)
           .type(typeof value === 'object' ? 'application/json' : 'text/plain')
           .send(value)
@@ -50,14 +50,14 @@ describe('Plano server', function(){
 
       // We'll do one post and a couple of puts, just to prove they all work...
       postData({db: 'test', key: 'key1', value: 'value1'}, function(response){
-        assert.equal(response.body.db, 'test');
+        assert.equal(response.body.params.db, 'test');
         assert.equal(response.body.data.key1, 'value1');
         putData({db: 'test', key: 'key2', value: _date}, function(response){
-          assert.equal(response.body.db, 'test');
+          assert.equal(response.body.params.db, 'test');
           assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(),
                        _date.toString());
           putData({db: 'test', key: 'key3', value: {value3: true}}, function(response){
-            assert.equal(response.body.db, 'test');
+            assert.equal(response.body.params.db, 'test');
             assert.equal(response.body.data.key3.value3, true); // boo :-(
             done();
           });
@@ -68,19 +68,19 @@ describe('Plano server', function(){
     it('should get some data', function(done){
       function getData(params, next){
         var url = _server.URLs().get;
-        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        url = url.replace(':db', params.db).replace(':key', params.key);
         unirest.get(url).end(next);
       }
 
       getData({db: 'test', key: 'key1'}, function(response){
-        assert.equal(response.body.db, 'test');
+        assert.equal(response.body.params.db, 'test');
         assert.equal(response.body.data.key1, 'value1');
         getData({db: 'test', key: 'key2'}, function(response){
-          assert.equal(response.body.db, 'test');
+          assert.equal(response.body.params.db, 'test');
           assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(),
                        _date.toString());
           getData({db: 'test', key: 'key3'}, function(response){
-            assert.equal(response.body.db, 'test');
+            assert.equal(response.body.params.db, 'test');
             assert.equal(response.body.data.key3.value3, true);
             getData({db: 'test', key: 'key4'}, function(response){
               assert.equal(response.body.error, 'Key not found in database [key4]');
@@ -94,13 +94,13 @@ describe('Plano server', function(){
     it('should get all data in a database', function(done){
       function getAll(params, next){
         var url = _server.URLs().getAll + params.query;
-        url = url.replace(':dbName', params.db);
+        url = url.replace(':db', params.db);
         unirest.get(url).end(next);
       }
 
       getAll({db: 'test', query: ''}, function(response){
         var data = response.body.data;
-        assert.equal(response.body.db, 'test');
+        assert.equal(response.body.params.db, 'test');
         assert.equal(data.key1, 'value1');
         assert.equal(Plano.utils.unwrap(data.key2).toString(),
                      _date.toString());
@@ -108,7 +108,7 @@ describe('Plano server', function(){
         assert.equal(data.key4, null);
         getAll({db: 'test', query: '?gt=key2'}, function(response){
           var data = response.body.data;
-          assert.equal(response.body.db, 'test');
+          assert.equal(response.body.params.db, 'test');
           assert.equal(data.key1, null);
           assert.equal(data.key2, null);
           assert.equal(data.key3.value3, true);
@@ -121,7 +121,7 @@ describe('Plano server', function(){
     it('should get a range of data', function(done){
       function getRange(params, next){
         var url = _server.URLs().getRange;
-        url = url.replace(':dbName', params.db)
+        url = url.replace(':db', params.db)
                  .replace(':fromKey', params.fromKey)
                  .replace(':toKey', params.toKey);
         unirest.get(url).end(next);
@@ -129,17 +129,17 @@ describe('Plano server', function(){
 
       getRange({db: 'test', fromKey: 'key2', toKey: 'key3'}, function(response){
         var data = response.body.data;
-        assert.equal(response.body.db, 'test');
-        assert.equal(response.body.fromKey, 'key2');
-        assert.equal(response.body.toKey, 'key3');
+        assert.equal(response.body.params.db, 'test');
+        assert.equal(response.body.params.fromKey, 'key2');
+        assert.equal(response.body.params.toKey, 'key3');
         assert.equal(Plano.utils.unwrap(data.key2).toString(),
                      _date.toString());
         assert.equal(data.key3.value3, true);
         getRange({db: 'test', fromKey: 'key3', toKey: 'key4'}, function(response){
           var data = response.body.data;
-          assert.equal(response.body.db, 'test');
-          assert.equal(response.body.fromKey, 'key3');
-          assert.equal(response.body.toKey, 'key4');
+          assert.equal(response.body.params.db, 'test');
+          assert.equal(response.body.params.fromKey, 'key3');
+          assert.equal(response.body.params.toKey, 'key4');
           assert.equal(data.key2, null);
           assert.equal(data.key3.value3, true);
           assert.equal(data.key4, null);
@@ -257,6 +257,7 @@ describe('Plano server', function(){
         assert.deepEqual(body.deleted, ['key3', 'key5', 'key6']); // no 'key4'
         return _server.API.getAll('test');
       }).then(function(body){
+        assert.equal(body.params.db, 'test');
         assert.equal(body.data.key2.toString(), _date.toString());
         assert.equal(body.data.key3, null); // deleted
         assert.equal(body.data.key4, null); // not set
@@ -282,7 +283,7 @@ describe('Plano server', function(){
     it('should not put new data', function(done){
       function putData(params, next){
         var url = _server.URLs().put;
-        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        url = url.replace(':db', params.db).replace(':key', params.key);
         unirest.put(url)
           .type('text/plain')
           .send(params.value)
@@ -298,7 +299,7 @@ describe('Plano server', function(){
     it('should not get any data', function(done){
       function getData(params, next){
         var url = _server.URLs().get;
-        url = url.replace(':dbName', params.db).replace(':key', params.key);
+        url = url.replace(':db', params.db).replace(':key', params.key);
         unirest.get(url).end(next);
       }
 
