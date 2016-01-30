@@ -20,6 +20,18 @@ offers range queries to retrieve keys and values within bounds. This enables
 LevelDB to solve problems that might typically require a relational database,
 or MongoDB. LevelDB also offers data compression by default, unlike MongoDB.
 
+Whereas servers like Redis offer the concept of TTL (expiring data), Plano
+offers deletion over key ranges. Data tables that are keyed on epoch times
+are easily purged of old data by using the `delRange` API method (below).
+
+## Use cases for Plano
+Generally it's a _Very Bad Idea™_ to make Plano directly available to web/app
+front-ends because the API doesn't (yet) support authentication/authorization.
+Instead, Plano is ideally suited to the kinds of roles where you might use
+MongoDB, Redis or Riak as part of a secured NodeJS back-end server system.
+It's a great tool for prototyping projects where you'd like to avoid writing
+complex database schemas and migrations.
+
 ## How to run the server
 
     > npm install plano
@@ -105,6 +117,13 @@ and efficiently.
       // Our first key/value pair is now deleted
       body.deleted === "myKey1";
     });
+
+#### Delete a range of data using the API (the range is inclusive)
+
+    plano.API.delRange("myDatabaseName", "myKey0", "myKey3").then(function(body){
+      // Our second and third key/value pairs are now deleted
+      body.deleted === ["myKey2", "myKey3"]; // "myKey0" does not exist...
+    });                                      // ...and "myKey1" was deleted
 
 ## HTTP API
 
@@ -211,6 +230,22 @@ Example:
 Response:
     `{"db":"myDatabaseName","deleted":"myKey","time":1453889946843}`
 
+#### DELETE `http://addr:port/db/:dbName/:fromKey/:toKey`
+
+Delete a range of key/value pairs in a database.
+
+__Params__
+* `:dbName` - your database name (it'll be created if it doesn't exist)
+* `:fromKey` - the key at the start of the range
+* `:toKey` - the key at the end of the range
+* `?callback` - an optional JavaScript callback function for JSONP requests
+
+Example:
+    `curl -X DELETE http://localhost:9999/db/myDatabaseName/myKey1/myKey2`
+
+Response:
+    `{"db":"myDatabaseName","fromKey":"myKey1","toKey":"myKey2","deleted":["myKey1","myKey2"],"time":1453889946843}`
+
 #### GET `http://addr:port/version`
 
 Get the current version.
@@ -219,7 +254,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"1.3.1","time":1453889946843}`
+    `{"version":"1.4.0","time":1453889946843}`
 
 ## JSONP
 

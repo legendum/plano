@@ -170,9 +170,9 @@ describe('Plano server', function(){
         return _server.API.put('test', 'key7', _date);
       }).then(function(body){
         assert.equal(body.data.key7.toString(), _date.toString());
-        return _server.API.put('test', 'key8', [1,2,3]);
+        return _server.API.put('test', 'key8', [1, 2, 3]);
       }).then(function(body){
-        assert.equal(body.data.key8.toString(), [1,2,3].toString());
+        assert.deepEqual(body.data.key8, [1, 2, 3]);
         done();
       }).catch(function(error){
         console.error(error);
@@ -191,7 +191,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key7.toString(), _date.toString());
         return _server.API.get('test', 'key8');
       }).then(function(body){
-        assert.equal(body.data.key8.toString(), [1,2,3].toString());
+        assert.deepEqual(body.data.key8, [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){
@@ -227,7 +227,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7.toString(), _date.toString());
-        assert.equal(body.data.key8.toString(), [1,2,3].toString());
+        assert.deepEqual(body.data.key8, [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){
@@ -236,13 +236,34 @@ describe('Plano server', function(){
     });
 
     it('should get a range of data', function(done){
-      _server.API.getRange('test', 'key3', 'key6').then(function(body){
+      _server.API.getRange('test', 'key1', 'key6').then(function(body){
+        assert.equal(body.data.key1, null); // deleted
+        assert.equal(body.data.key2.toString(), _date.toString());
         assert.equal(body.data.key3.value3, true);
         assert.equal(body.data.key4, null); // not set
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7, null); // outside the range
         assert.equal(body.data.key8, null); // outside the range
+      }).then(function(){
+        done();
+      }).catch(function(error){
+        console.error(error);
+      });
+    });
+
+    it('should delete a range of data', function(done){
+      _server.API.delRange('test', 'key3', 'key6').then(function(body){
+        assert.deepEqual(body.deleted, ['key3', 'key5', 'key6']); // no 'key4'
+        return _server.API.getAll('test');
+      }).then(function(body){
+        assert.equal(body.data.key2.toString(), _date.toString());
+        assert.equal(body.data.key3, null); // deleted
+        assert.equal(body.data.key4, null); // not set
+        assert.equal(body.data.key5, null); // deleted
+        assert.equal(body.data.key6, null); // deleted
+        assert.equal(body.data.key7.toString(), _date.toString());
+        assert.deepEqual(body.data.key8, [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){
