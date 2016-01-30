@@ -1,8 +1,6 @@
-# plano
+# plano [![Build Status](https://travis-ci.org/legendum/plano.svg)](http://travis-ci.org/legendum/plano)
 
 A simple single-process REST server for LevelDB.
-
-![https://travis-ci.org/legendum/plano](https://travis-ci.org/legendum/plano.svg)
 
 ## What is Plano?
 
@@ -57,6 +55,10 @@ Start a Plano server from inside your JavaScript code like this:
     plano.start(function(){
       // We're running!
     });
+
+Once your Plano server is running, you can make API calls to it from multiple
+servers. The only restriction is that just one Plano server process may run at
+a time on each address and port.
 
 All Plano API methods return `Promise` objects. See https://www.promisejs.org/
 for details if you're not familiar with them.
@@ -307,3 +309,4 @@ Yes, you can add a `?callback=myCallback` query parameter to have the response b
 * Restrict the creation of new databases somehow
 * Add batch operations
 * API for web browsers
+* Mirroring/replication
