@@ -313,12 +313,9 @@ Response:
 
 ## JSONP
 
-Yes, you can add a `?callback=myCallback` query parameter to have the response be sent as JavaScript instead of JSON.
+Yes, you can add a `?callback=myCallback` query parameter to have the response be sent as JavaScript instead of JSON. But remember it's a _Very Bad Idea_ to
+connect a Plano server to a web/app front-end because there's no auth (yet).
 
 ## TODO
 
-* Add Basic Auth
-* Restrict the creation of new databases somehow
-* Add batch operations
-* API for web browsers
-* Mirroring/replication
+* Mirroring/replication/backups
