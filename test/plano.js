@@ -170,9 +170,9 @@ describe('Plano server', function(){
         return _server.API.put('test', 'key7', _date);
       }).then(function(body){
         assert.equal(body.data.key7.toString(), _date.toString());
-        return _server.API.put('test', 'key8', [1, 2, 3]);
+        return _server.API.put('test', 'key/8', [1, 2, 3]);
       }).then(function(body){
-        assert.deepEqual(body.data.key8, [1, 2, 3]);
+        assert.deepEqual(body.data['key/8'], [1, 2, 3]);
         done();
       }).catch(function(error){
         console.error(error);
@@ -189,9 +189,9 @@ describe('Plano server', function(){
         return _server.API.get('test', 'key7');
       }).then(function(body){
         assert.equal(body.data.key7.toString(), _date.toString());
-        return _server.API.get('test', 'key8');
+        return _server.API.get('test', 'key/8');
       }).then(function(body){
-        assert.deepEqual(body.data.key8, [1, 2, 3]);
+        assert.deepEqual(body.data['key/8'], [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){
@@ -227,7 +227,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7.toString(), _date.toString());
-        assert.deepEqual(body.data.key8, [1, 2, 3]);
+        assert.deepEqual(body.data['key/8'], [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){
@@ -244,7 +244,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5.value5, '➎');
         assert.equal(body.data.key6, 6);
         assert.equal(body.data.key7, null); // outside the range
-        assert.equal(body.data.key8, null); // outside the range
+        assert.equal(body.data['key/8'], null); // outside the range
       }).then(function(){
         done();
       }).catch(function(error){
@@ -264,7 +264,7 @@ describe('Plano server', function(){
         assert.equal(body.data.key5, null); // deleted
         assert.equal(body.data.key6, null); // deleted
         assert.equal(body.data.key7.toString(), _date.toString());
-        assert.deepEqual(body.data.key8, [1, 2, 3]);
+        assert.deepEqual(body.data['key/8'], [1, 2, 3]);
       }).then(function(){
         done();
       }).catch(function(error){

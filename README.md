@@ -63,8 +63,13 @@ a time on each address and port.
 All Plano API methods return `Promise` objects. See https://www.promisejs.org/
 for details if you're not familiar with them.
 
-Keys _must_ be plain strings. If you need to use a different datatype or a more
-complex object, then use `JSON.stringify(key)` to encode it as a string first.
+Database names must be plain words, without any special characters except "\_".
+Typically you will want to use what would usually be a table name, such as
+"users", "customers" or "orders".
+
+Keys _must_ be plain strings. If you need to use a different datatype
+(e.g. a `Date`) or a more complex object, then use `JSON.stringify(key)`
+to encode it as a string first.
 
 Values may be plain strings, booleans, numbers, `Date` objects or more complex
 objects like arrays or hashes. The API attempts to handle all data encoding and
@@ -297,7 +302,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.0.0","time":1453889946843}`
+    `{"version":"2.0.1","time":1453889946843}`
 
 ## JSONP
 
