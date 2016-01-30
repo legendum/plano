@@ -57,8 +57,9 @@ Start a Plano server from inside your JavaScript code like this:
     });
 
 Once your Plano server is running, you can make API calls to it from multiple
-servers. The only restriction is that just one Plano server process may run at
-a time on each address and port.
+servers. The only restrictions are:
+1. Just one Plano server process may run at a time on each address and port.
+2. The same databases cannot be served by more than one Plano server process.
 
 All Plano API methods return `Promise` objects. See https://www.promisejs.org/
 for details if you're not familiar with them.
