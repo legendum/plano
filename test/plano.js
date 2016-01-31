@@ -39,7 +39,7 @@ describe('Plano server', function(){
         url = url.replace(':db', params.db).replace(':key', params.key);
         unirest[params.method || 'put'](url)
           .type(typeof value === 'object' ? 'application/json' : 'text/plain')
-          .send(value)
+          .send(typeof value === 'object' ? {data: value} : value)
           .end(next);
       }
 
@@ -51,14 +51,13 @@ describe('Plano server', function(){
       // We'll do one post and a couple of puts, just to prove they all work...
       postData({db: 'test', key: 'key1', value: 'value1'}, function(response){
         assert.equal(response.body.params.db, 'test');
-        assert.equal(response.body.data.key1, 'value1');
+        assert.equal(response.body.params.key, 'key1');
         putData({db: 'test', key: 'key2', value: _date}, function(response){
           assert.equal(response.body.params.db, 'test');
-          assert.equal(Plano.utils.unwrap(response.body.data.key2).toString(),
-                       _date.toString());
+          assert.equal(response.body.params.key, 'key2');
           putData({db: 'test', key: 'key3', value: {value3: true}}, function(response){
             assert.equal(response.body.params.db, 'test');
-            assert.equal(response.body.data.key3.value3, true); // boo :-(
+            assert.equal(response.body.params.key, 'key3');
             done();
           });
         });
@@ -163,16 +162,19 @@ describe('Plano server', function(){
 
     it('should put some data', function(done){
       _server.API.put('test', 'key5', {value5: '➎'}).then(function(body){
-        assert.equal(body.data.key5.value5, '➎');
-        return _server.API.put('test', 'key6', 6);
+        assert.equal(body.params.key, 'key5');
+        return _server.API.putAll('test', 'this should be a key/value hash');
+      }).catch(function(error){
+        assert.equal(error, 'bad data');
+        return _server.API.putAll('test', {key6: 6, key7: _date});
       }).then(function(body){
-        assert.equal(body.data.key6, 6);
-        return _server.API.put('test', 'key7', _date);
+        assert.equal(body.data, null); // no data when we're putting in bulk
+        assert.deepEqual(body.keys, ['key6', 'key7']);
+        assert.equal(body.err, null);
       }).then(function(body){
-        assert.equal(body.data.key7.toString(), _date.toString());
         return _server.API.put('test', 'key/8', [1, 2, 3]);
       }).then(function(body){
-        assert.deepEqual(body.data['key/8'], [1, 2, 3]);
+        assert.equal(body.params.key, 'key/8');
         done();
       }).catch(function(error){
         console.error(error);

@@ -94,16 +94,28 @@ decoding transparently and efficiently.
 
     plano.API.put("myDatabaseName", "myKey1", "myValue1").then(function(body){
       // Our first key/value pair is now stored (a simple string)
-      body.data.myKey1 === "myValue1";
+      body.params.key === "myKey1";
       return plano.API.put("myDatabaseName", "myKey2", 2);
     }).then(function(body){
       // Our second key/value pair is now stored (a simple number)
-      body.data.myKey2 === 2;
+      body.params.key === "myKey2";
       return plano.API.put("myDatabaseName", "myKey3", {num: 3, odd: true});
     }).then(function(body){
       // Our third key/value pair is now stored (a complex object)
-      body.data.myKey3.num === 3;
-      body.data.myKey3.odd === true;
+      body.params.key === "myKey3";
+    });
+
+#### Put bulk updates using the API
+
+    plano.API.putAll("myDatabaseName", {
+      "myKey1": "myValue1",
+      "myKey2": 2,
+      "myKey3": {{num: 3, odd: true}
+    }).then(function(body){
+      // Our first key/value pair is now stored (a simple string)
+      // Our second key/value pair is now stored (a simple number)
+      // Our third key/value pair is now stored (a complex object)
+      body.params.keys === ["myKey1, "myKey2", "myKey3"];
     });
 
 #### Get data using the API
@@ -169,7 +181,8 @@ in `data` and a list of deleted keys in `deleted`.
 
 The *body* of the POST or PUT request is the value to be stored in the database.
 When sending a JSON value, be sure to use a content type of "application/json",
-otherwise "text/plain" should work fine for most other value datatypes.
+otherwise "text/plain" should work fine for most other value datatypes. JSON
+objects _must_ have a JSON root of "data".
 
 __Params__
 * `:db` - your database name (it'll be created if it doesn't exist)
@@ -180,13 +193,29 @@ Example (plain text value):
     `curl -X PUT --data "myStoredValue" http://localhost:9999/db/myDatabaseName/myKey`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"myKey"},"data":{"myKey":"myStoredValue"},"time":1453889946843,"msecs":20}`
+    `{"params":{"db":"myDatabaseName","key":"myKey"},"time":1453889946843,"msecs":20}`
 
 Example (JSON value):
     `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
 
 Response:
-    `{"params":{"db":"myDatabaseName","key":"status"},"data":{"status":{"ok":true}},"time":1453972791640,"msecs":20}`
+    `{"params":{"db":"myDatabaseName","key":"status"},"time":1453972791640,"msecs":20}`
+
+#### POST or PUT `http://addr:port/db/:db` (for batch updates)
+
+The *body* of the POST or PUT request is a map of keys and values to be stored
+in the database, encoded as JSON with a root of "data" (be sure to use a content
+type of "application/json").
+
+__Params__
+* `:db` - your database name (it'll be created if it doesn't exist)
+* `?callback` - an optional JavaScript callback function for JSONP requests
+
+Example:
+    `curl -X PUT --data '{"data":{"myKey1":"myStoredValue1","myKey2":2}}' http://localhost:9999/db/myDatabaseName`
+
+Response:
+    `{"params":{"db":"myDatabaseName","keys":["myKey1","myKey2"]},"time":1453889946843,"msecs":20}`
 
 #### GET `http://addr:port/db/:db/:key`
 
@@ -322,7 +351,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.0.2","time":1453889946843,"msecs":5}`
+    `{"version":"2.1.0","time":1453889946843,"msecs":5}`
 
 ## JSONP
 
