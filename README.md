@@ -180,9 +180,14 @@ in `data` and a list of deleted keys in `deleted`.
 #### POST or PUT `http://addr:port/db/:db/:key`
 
 The *body* of the POST or PUT request is the value to be stored in the database.
-When sending a JSON value, be sure to use a content type of "application/json",
-otherwise "text/plain" should work fine for most other value datatypes. JSON
-objects _must_ have a JSON root of "data".
+By default, values are plain strings and should be sent as "text/plain" content.
+When sending a JSON value, be sure to use a content type of "application/json".
+JSON objects _must_ have a JSON root of "data" and _must_ be key/value objects,
+not arrays, booleans, dates or numbers.
+
+If you want to PUT a JSON object, then you're probably better off using the API
+(see above) because it handles the marshalling of various datatypes, including
+arrays, booleans, dates and numbers.
 
 __Params__
 * `:db` - your database name (it'll be created if it doesn't exist)
@@ -351,7 +356,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.1.1","time":1453889946843,"msecs":5}`
+    `{"version":"2.1.2","time":1453889946843,"msecs":5}`
 
 ## JSONP
 
