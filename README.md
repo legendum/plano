@@ -26,6 +26,19 @@ Whereas servers like Redis offer the concept of TTL (expiring data), Plano
 offers deletion over key ranges. Data tables that are keyed on epoch times
 are easily purged of old data by using the `delRange` API method (below).
 
+## Installing LevelDB
+
+To use Plano, you'll first need to install LevelDB. On a Mac, install LevelDB
+with Homebrew (see http://brew.sh/) like this:
+
+    brew install leveldb
+
+On Ubuntu Linux, install LevelDB with:
+
+    apt-get install leveldb1v5
+
+On Windows, heck I have no idea.
+
 ## Use cases for Plano
 
 Generally it's a _Very Bad Idea_ to make Plano directly available to web/app
