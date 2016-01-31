@@ -196,7 +196,7 @@ Response:
     `{"params":{"db":"myDatabaseName","key":"myKey"},"time":1453889946843,"msecs":20}`
 
 Example (JSON value):
-    `curl -X PUT -H 'content-type: application/json' --data '{"ok":true}' http://localhost:9999/db/myDatabaseName/status`
+    `curl -X PUT -H 'content-type: application/json' --data '{"data":{"ok":true}}' http://localhost:9999/db/myDatabaseName/status`
 
 Response:
     `{"params":{"db":"myDatabaseName","key":"status"},"time":1453972791640,"msecs":20}`
