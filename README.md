@@ -110,7 +110,7 @@ decoding transparently and efficiently.
     plano.API.putAll("myDatabaseName", {
       "myKey1": "myValue1",
       "myKey2": 2,
-      "myKey3": {{num: 3, odd: true}
+      "myKey3": {num: 3, odd: true}
     }).then(function(body){
       // Our first key/value pair is now stored (a simple string)
       // Our second key/value pair is now stored (a simple number)
