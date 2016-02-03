@@ -30,12 +30,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/legendum/plano.git"
+    "url": "git+https://github.com/legendum/plano.git"
   },
+  "homepage": "https://github.com/legendum/plano",
   "scripts": {
     "test": "mocha ./test"
   },
   "engine": "node >= 0.10.25",
   "license": "MIT",
-  "version": "2.1.2"
+  "version": "2.1.3"
 }

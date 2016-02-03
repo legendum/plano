@@ -356,7 +356,7 @@ Example:
     `curl http://localhost:9999/version`
 
 Response:
-    `{"version":"2.1.2","time":1453889946843,"msecs":5}`
+    `{"version":"2.1.3","time":1453889946843,"msecs":5}`
 
 ## JSONP
 
