@@ -35,7 +35,7 @@ with Homebrew (see http://brew.sh/) like this:
 
 On Ubuntu Linux, install LevelDB with:
 
-    apt-get install leveldb1v5
+    apt-get install libleveldb-dev
 
 On Windows, heck I have no idea.
 
