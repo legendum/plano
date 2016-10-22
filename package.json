@@ -17,16 +17,16 @@
   "main": "./lib/plano.js",
   "dependencies": {
     "async": "^1.5.2",
-    "http-status-codes": "^1.0.5",
-    "level": "^1.4.0",
+    "http-status-codes": "^1.0.6",
+    "level": "^1.5.0",
     "minimist": "^1.2.0",
     "promise": "^7.1.1",
-    "restify": "^4.0.3",
+    "restify": "^4.1.1",
     "unirest": "^0.4.2"
   },
   "devDependencies": {
-    "chai": "^3.4.1",
-    "mocha": "^2.4.2"
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   },
   "repository": {
     "type": "git",
