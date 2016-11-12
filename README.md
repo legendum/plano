@@ -217,7 +217,7 @@ __Params__
 * `?callback` - an optional JavaScript callback function for JSONP requests
 
 Example:
-    `curl -X PUT --data '{"data":{"myKey1":"myStoredValue1","myKey2":{"value":2}}}' http://localhost:9999/db/myDatabaseName`
+    `curl -X PUT -H 'content-type: application/json' --data '{"data":{"myKey1":"myStoredValue1","myKey2":{"value":2}}}' http://localhost:9999/db/myDatabaseName`
 
 Response:
     `{"params":{"db":"myDatabaseName","keys":["myKey1","myKey2"]},"time":1453889946843,"msecs":20}`
